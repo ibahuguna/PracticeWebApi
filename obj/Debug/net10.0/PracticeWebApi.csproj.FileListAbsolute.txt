@@ -32,3 +32,4 @@ C:\Users\Ishita\source\repos\PracticeWebApi\obj\Debug\net10.0\refint\PracticeWeb
 C:\Users\Ishita\source\repos\PracticeWebApi\obj\Debug\net10.0\PracticeWebApi.pdb
 C:\Users\Ishita\source\repos\PracticeWebApi\obj\Debug\net10.0\PracticeWebApi.genruntimeconfig.cache
 C:\Users\Ishita\source\repos\PracticeWebApi\obj\Debug\net10.0\ref\PracticeWebApi.dll
+C:\Users\Ishita\source\repos\PracticeWebApi\obj\Debug\net10.0\PracticeWebApi.sourcelink.json

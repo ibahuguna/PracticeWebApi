@@ -6,7 +6,7 @@ var app = builder.Build();
 
 var todos = new List<Todo>();
 
-app.MapGet("/tools", () => todos);
+app.MapGet("/todos", () => todos);
 
 app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
 {
@@ -19,13 +19,15 @@ app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
 app.MapPost("/todos", (Todo task) =>
 {
     todos.Add(task);
-    return TypedResults.Created("/todos/{id}", task);
+    return TypedResults.Created($"/todos/{task.Id}", task);
 });
 
 app.MapDelete("/todos/{id}", (int id) =>
 {
-    todos.RemoveAll(t => id == t.Id);
-    return TypedResults.NoContent();
+    var removed = todos.RemoveAll(t => id == t.Id);
+    return (removed == 0)?
+         Results.NotFound() :
+         Results.NoContent();
 });
 
 app.Run();
