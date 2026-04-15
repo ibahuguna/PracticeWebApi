@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-var todos = new List<Todo>();
+app.UseRewriter(new RewriteOptions().AddRewrite("^tasks(/.*)?$", "todos$1", skipRemainingRules: true)); ;
 
 app.Use(async (context, next) =>
     {
@@ -14,6 +15,8 @@ app.Use(async (context, next) =>
         Console.WriteLine($"[{DateTime.Now}] {context.Request.Method} {context.Request.Path} -> " +
             $"{context.Response.StatusCode} in {duration.TotalMilliseconds} ms");
     });
+
+var todos = new List<Todo>();
 
 app.MapGet("/todos", () => todos);
 
@@ -37,10 +40,10 @@ app.MapPost("/todos", (Todo task) =>
 app.MapPut("/todos/{id}", (int id, Todo updatedTodo) =>
 {
     var existingTodo = todos.SingleOrDefault(t => t.Id == id);
-    if(existingTodo is null)
+    if (existingTodo is null)
         return Results.NotFound();
-    var updated = existingTodo  with 
-    { 
+    var updated = existingTodo with
+    {
         Name = updatedTodo.Name,
         DueDate = updatedTodo.DueDate,
         IsCompleted = updatedTodo.IsCompleted
@@ -53,10 +56,10 @@ app.MapPut("/todos/{id}", (int id, Todo updatedTodo) =>
 app.MapDelete("/todos/{id}", (int id) =>
 {
     var removed = todos.RemoveAll(t => id == t.Id);
-    return (removed == 0)?
+    return (removed == 0) ?
          Results.NotFound() :
          Results.NoContent();
-}); 
+});
 
 app.Run();
 
