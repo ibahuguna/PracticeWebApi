@@ -16,10 +16,13 @@ app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
     : TypedResults.Ok(targetTodo);
 });
 
+int nextId = 1;
+
 app.MapPost("/todos", (Todo task) =>
 {
-    todos.Add(task);
-    return TypedResults.Created($"/todos/{task.Id}", task);
+    Todo newTask = task with { Id = nextId++ };
+    todos.Add(newTask);
+    return TypedResults.Created($"/todos/{newTask.Id}", newTask);
 });
 
 app.MapDelete("/todos/{id}", (int id) =>
@@ -28,7 +31,7 @@ app.MapDelete("/todos/{id}", (int id) =>
     return (removed == 0)?
          Results.NotFound() :
          Results.NoContent();
-});
+}); 
 
 app.Run();
 
