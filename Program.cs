@@ -6,6 +6,15 @@ var app = builder.Build();
 
 var todos = new List<Todo>();
 
+app.Use(async (context, next) =>
+    {
+        var start = DateTime.UtcNow;
+        await next();
+        var duration = DateTime.UtcNow - start;
+        Console.WriteLine($"[{DateTime.Now}] {context.Request.Method} {context.Request.Path} -> " +
+            $"{context.Response.StatusCode} in {duration.TotalMilliseconds} ms");
+    });
+
 app.MapGet("/todos", () => todos);
 
 app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
