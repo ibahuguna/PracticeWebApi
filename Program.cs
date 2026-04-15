@@ -34,6 +34,22 @@ app.MapPost("/todos", (Todo task) =>
     return TypedResults.Created($"/todos/{newTask.Id}", newTask);
 });
 
+app.MapPut("/todos/{id}", (int id, Todo updatedTodo) =>
+{
+    var existingTodo = todos.SingleOrDefault(t => t.Id == id);
+    if(existingTodo is null)
+        return Results.NotFound();
+    var updated = existingTodo  with 
+    { 
+        Name = updatedTodo.Name,
+        DueDate = updatedTodo.DueDate,
+        IsCompleted = updatedTodo.IsCompleted
+    };
+    var index = todos.IndexOf(existingTodo);
+    todos[index] = updated;
+    return Results.Ok(updated);
+});
+
 app.MapDelete("/todos/{id}", (int id) =>
 {
     var removed = todos.RemoveAll(t => id == t.Id);
