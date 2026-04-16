@@ -10,7 +10,7 @@ app.UseRewriter(new RewriteOptions().AddRewrite("^tasks(/.*)?$", "todos$1", skip
 app.Use(async (context, next) =>
     {
         var start = DateTime.UtcNow;
-        await next();
+        await next(context);
         var duration = DateTime.UtcNow - start;
         Console.WriteLine($"[{DateTime.Now}] {context.Request.Method} {context.Request.Path} -> " +
             $"{context.Response.StatusCode} in {duration.TotalMilliseconds} ms");
@@ -35,6 +35,20 @@ app.MapPost("/todos", (Todo task) =>
     Todo newTask = task with { Id = nextId++ };
     todos.Add(newTask);
     return TypedResults.Created($"/todos/{newTask.Id}", newTask);
+})
+.AddEndpointFilter(async (context, next) =>
+{
+    var taskArgument = context.GetArgument<Todo>(0);
+    var errors = new Dictionary<string, string[]>();
+    if (taskArgument.DueDate < DateTime.UtcNow)
+        errors.Add(nameof(Todo.DueDate), ["Cannot have due date in the past"]);
+    if (taskArgument.IsCompleted)
+        errors.Add(nameof(Todo.IsCompleted), ["Cannot add completed todo."]);
+
+    if (errors.Count > 0)
+        return Results.ValidationProblem(errors);
+
+    return await next(context);
 });
 
 app.MapPut("/todos/{id}", (int id, Todo updatedTodo) =>
